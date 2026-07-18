@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>米拉AI | 企业 AI 私域运营助手</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      --ink: #12233d;
+      --muted: #61728d;
+      --blue: #387be8;
+      --blue-deep: #2551c8;
+      --cyan: #15c9be;
+      --violet: #8a6cf4;
+      --pink: #dc7ee7;
+      --coral: #ff8b7d;
+      --green: #29bd9c;
+      --line: rgba(40, 88, 170, .14);
+      --glass: rgba(255, 255, 255, .78);
+      --shadow: 0 22px 60px rgba(46, 91, 161, .14);
+      --display: 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
+      --body: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Heiti SC', sans-serif;
+      --ease: cubic-bezier(.16, 1, .3, 1);
+      --pad: clamp(1.1rem, 4vw, 4.5rem);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    body { color: var(--ink); font-family: var(--body); background: #edf7ff; }
+    button { font: inherit; }
+    img, video { display: block; max-width: 100%; }
+    .deck { height: 100dvh; overflow-y: auto; scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+    .slide {
+      position: relative; width: 100vw; height: 100dvh; min-height: 680px; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: center; isolation: isolate;
+      padding: var(--pad); scroll-snap-align: start;
+      background: linear-gradient(135deg, rgba(207,245,252,.85), rgba(255,255,255,.78) 45%, rgba(246,231,255,.88)), #f7fbff;
+    }
+    .slide::before {
+      content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .42;
+      background-image: linear-gradient(rgba(42,115,208,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(42,115,208,.055) 1px, transparent 1px);
+      background-size: 42px 42px; mask-image: linear-gradient(to bottom, black, transparent 92%);
+    }
+    .slide::after { content: ''; position: absolute; z-index: -1; right: -4%; bottom: 10%; width: 42%; height: 1px; transform: rotate(-14deg); background: linear-gradient(90deg, transparent, rgba(138,108,244,.32), transparent); }
+    .slide.dark { color: #f7fbff; background: linear-gradient(135deg, #132c54 0%, #284d9f 48%, #6c53c8 100%); }
+    .slide.dark::before { opacity: .18; background-image: linear-gradient(rgba(255,255,255,.14) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.14) 1px, transparent 1px); }
+    .slide-content { width: min(1220px, 100%); margin: 0 auto; }
+    .topline, .footer { position: absolute; left: var(--pad); right: var(--pad); display: flex; align-items: center; justify-content: space-between; gap: 1rem; color: var(--muted); font-size: clamp(.65rem, 1vw, .84rem); letter-spacing: .08em; }
+    .topline { top: clamp(.8rem, 2.7vw, 2rem); }
+    .footer { bottom: clamp(.7rem, 2vw, 1.35rem); }
+    .dark .topline, .dark .footer { color: rgba(255,255,255,.72); }
+    .brand { display: inline-flex; align-items: center; gap: .7rem; font-weight: 800; letter-spacing: .03em; }
+    .brand img, .close-logo { width: 2.1rem; height: 2.1rem; border-radius: .7rem; padding: .14rem; background: linear-gradient(135deg,#d8efff,#f1ddff); box-shadow: 0 10px 24px rgba(58,125,230,.2); }
+    .eyebrow { margin: 0 0 .85rem; color: var(--blue); font-size: clamp(.68rem, 1vw, .86rem); font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .dark .eyebrow { color: #9ff4ea; }
+    h1, h2, h3, p { margin: 0; }
+    h1, h2 { font-family: var(--display); letter-spacing: .025em; }
+    h1 { max-width: 900px; font-size: clamp(2.65rem, 6.6vw, 6.7rem); line-height: 1.03; }
+    h2 { max-width: 970px; font-size: clamp(1.8rem, 3.5vw, 3.6rem); line-height: 1.16; }
+    h3 { font-size: clamp(1rem, 1.6vw, 1.3rem); line-height: 1.3; }
+    p, li { font-size: clamp(.78rem, 1.15vw, 1rem); line-height: 1.75; }
+    .lede { max-width: 720px; margin-top: 1rem; color: var(--muted); font-size: clamp(.95rem, 1.4vw, 1.2rem); line-height: 1.75; }
+    .dark .lede, .dark p { color: rgba(247,251,255,.78); }
+    .accent { color: var(--blue-deep); }
+    .dark .accent { color: #fff09a; }
+    .gradient-text { background: linear-gradient(110deg, var(--blue), var(--violet) 56%, var(--pink)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .glass { border: 1px solid rgba(255,255,255,.86); background: var(--glass); box-shadow: var(--shadow); backdrop-filter: blur(16px); border-radius: 1.05rem; }
+    .pill, .tag { display: inline-flex; align-items: center; gap: .35rem; padding: .42rem .7rem; border-radius: 999px; color: var(--blue-deep); background: rgba(255,255,255,.66); border: 1px solid rgba(56,123,232,.14); font-size: clamp(.66rem, .9vw, .8rem); font-weight: 700; }
+    .dark .pill, .dark .tag { color: #f6ffff; border-color: rgba(255,255,255,.25); background: rgba(255,255,255,.12); }
+    .title-line { display: block; white-space: nowrap; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 2rem; margin-bottom: clamp(1rem, 2vw, 1.8rem); }
+    .section-head > div { min-width: 0; }
+    .section-head h2 { font-size: clamp(1.85rem, 3.3vw, 3.25rem); }
+    .section-head > p { max-width: 390px; color: var(--muted); }
+    .dark .section-head > p { color: rgba(247,251,255,.76); }
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+    .slide.active .reveal { opacity: 1; transform: none; }
+    .slide.active .reveal:nth-child(2) { transition-delay: .08s; }
+    .slide.active .reveal:nth-child(3) { transition-delay: .16s; }
+    .slide.active .reveal:nth-child(4) { transition-delay: .24s; }
+
+    /* Cover */
+    .cover-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, .92fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: center; }
+    .cover-copy h1 { max-width: 720px; }
+    .cover-copy .lede { max-width: 650px; color: var(--muted); font-size: clamp(.82rem, 1.15vw, 1rem); line-height: 1.58; }
+    .cover-copy .lede strong { display: block; color: var(--ink); font-size: 1.02em; }
+    .cover-side { position: relative; aspect-ratio: 16 / 10; overflow: hidden; padding: clamp(.5rem, 1.2vw, .75rem); border: 1px solid rgba(255,255,255,.88); border-radius: 1.15rem; background: rgba(255,255,255,.52); box-shadow: 0 35px 80px rgba(40,91,181,.22); }
+    .cover-side::before { content: ''; position: absolute; inset: -5% -9% -9% -8%; z-index: -1; border: 1px solid rgba(255,255,255,.8); border-radius: 48% 52% 45% 55%; background: linear-gradient(135deg, rgba(255,255,255,.64), rgba(217,244,255,.36) 45%, rgba(240,222,255,.48)); transform: rotate(-4deg); }
+    .site-preview { width: 100%; height: 100%; overflow: hidden; border-radius: .8rem; background: #eff8ff; }
+    .site-preview-track { height: 400%; animation: site-scroll 18s var(--ease) infinite; }
+    .site-preview-panel { height: 25%; display: grid; grid-template-columns: minmax(0, .92fr) minmax(160px, 1.08fr); gap: .7rem; align-items: center; padding: 1rem 1.05rem; background: linear-gradient(135deg, #f6fcff, #eaf1ff 55%, #f7efff); }
+    .site-preview-panel:nth-child(2) { background: linear-gradient(135deg, #edfaff, #eef4ff 54%, #faf3ff); }
+    .site-preview-panel:nth-child(3) { background: linear-gradient(135deg, #eef9ff, #f6f8ff 56%, #fff1fb); }
+    .site-preview-panel:nth-child(4) { background: linear-gradient(135deg, #eaf7ff, #f5efff); }
+    .site-preview-copy small { display: block; color: var(--blue); font-size: .58rem; font-weight: 800; letter-spacing: .08em; }
+    .site-preview-copy b { display: block; margin-top: .35rem; color: var(--ink); font-family: var(--display); font-size: clamp(1.05rem, 2vw, 1.65rem); line-height: 1.18; }
+    .site-preview-copy p { margin-top: .4rem; color: var(--muted); font-size: .62rem; line-height: 1.45; }
+    .site-preview-panel img { width: 100%; height: 100%; max-height: 160px; object-fit: contain; border-radius: .45rem; box-shadow: 0 10px 22px rgba(46,91,161,.14); }
+    .cover-side:hover .site-preview-track { animation-play-state: paused; }
+    @keyframes site-scroll { 0%, 18% { transform: translateY(0); } 25%, 43% { transform: translateY(-25%); } 50%, 68% { transform: translateY(-50%); } 75%, 93% { transform: translateY(-75%); } 100% { transform: translateY(0); } }
+    .cover-video-label { position: absolute; left: 1.25rem; bottom: 1.25rem; padding: .4rem .65rem; border: 1px solid rgba(255,255,255,.4); border-radius: 999px; color: #fff; background: rgba(18,35,61,.72); backdrop-filter: blur(10px); font-size: clamp(.62rem,.85vw,.78rem); font-weight: 700; }
+    @keyframes cover-breathe { from { transform: scale(1); } to { transform: scale(1.035); } }
+    .cover-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: .65rem; margin-top: 1.6rem; max-width: 760px; }
+    .stat { min-width: 0; padding: .8rem .85rem; border: 1px solid rgba(255,255,255,.85); border-radius: .85rem; background: rgba(255,255,255,.62); box-shadow: 0 13px 30px rgba(45,101,185,.09); }
+    .stat strong, .big-stat strong { display: block; color: var(--blue-deep); font-size: clamp(1.5rem, 3vw, 2.8rem); line-height: 1; }
+    .stat strong .unit { font-family: var(--body); font-size: .44em; color: var(--violet); }
+    .stat span, .big-stat span { display: block; margin-top: .35rem; color: var(--muted); font-size: clamp(.62rem, .85vw, .78rem); }
+    .cover-tags { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1.1rem; }
+
+    /* Story and market */
+    .story-grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 1rem; }
+    .story-card { min-height: 325px; padding: clamp(1.2rem, 2.4vw, 1.8rem); display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(220,246,253,.62)); }
+    .story-card .quote { margin-top: 1rem; padding-left: .9rem; border-left: 3px solid var(--cyan); color: var(--ink); font-family: var(--display); font-size: clamp(1.05rem, 1.7vw, 1.45rem); line-height: 1.5; }
+    .story-source { margin-top: .7rem; color: var(--muted); font-size: .78rem; }
+    .metric-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: .45rem; margin-top: 1rem; }
+    .metric-strip span { padding: .52rem .55rem; border-radius: .6rem; color: var(--muted); background: rgba(255,255,255,.64); font-size: clamp(.6rem, .8vw, .72rem); }
+    .metric-strip strong { display: block; color: var(--blue-deep); font-size: clamp(.95rem, 1.65vw, 1.4rem); line-height: 1.1; }
+    .pain-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+    .pain-card { padding: 1rem 1.05rem; }
+    .pain-card .pain-icon { font-size: 1.65rem; line-height: 1; }
+    .pain-card h3 { margin-top: .55rem; }
+    .pain-card p { margin-top: .25rem; color: var(--muted); font-size: clamp(.68rem, .9vw, .8rem); line-height: 1.55; }
+    .market-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(310px, .85fr); gap: 1.1rem; align-items: stretch; }
+    .market-bars, .market-side { padding: clamp(1.1rem, 2vw, 1.6rem); }
+    .market-bars { display: grid; gap: .85rem; }
+    .market-row { display: grid; grid-template-columns: 10rem 1fr; gap: .85rem; align-items: center; }
+    .market-row label { color: var(--muted); font-size: .8rem; line-height: 1.35; }
+    .market-row label strong { display: block; color: var(--ink); font-size: clamp(1.15rem, 2vw, 1.7rem); }
+    .bar-track { height: 2.4rem; overflow: hidden; border-radius: .65rem; background: rgba(56,123,232,.08); }
+    .bar-fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--cyan), var(--blue), var(--violet)); transition: width 1s var(--ease); }
+    .slide.active .bar-fill { width: var(--bar); }
+    .market-row:nth-child(3) .bar-fill { background: linear-gradient(90deg, var(--coral), #ffbd73); }
+    .market-note { margin-top: .35rem; color: var(--muted); font-size: .72rem; }
+    .market-side { display: grid; align-content: center; gap: .9rem; }
+    .market-side h3 { color: var(--blue-deep); }
+    .compare-pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: .55rem; align-items: center; }
+    .compare-box { min-height: 105px; padding: .9rem; border-radius: .8rem; background: rgba(148,160,181,.13); }
+    .compare-box.highlight { background: linear-gradient(135deg, rgba(56,123,232,.16), rgba(138,108,244,.16)); border: 1px solid rgba(56,123,232,.18); }
+    .compare-box b { display: block; font-size: clamp(.95rem, 1.3vw, 1.15rem); }
+    .compare-box p { margin-top: .25rem; color: var(--muted); font-size: .72rem; line-height: 1.45; }
+    .compare-arrow { color: var(--coral); font-size: 1.3rem; font-weight: 800; }
+    .big-highlight { color: var(--coral); font-family: var(--display); font-size: clamp(1.7rem, 3vw, 2.8rem); text-align: center; }
+
+    /* Competition */
+    .comparison { overflow: hidden; border-radius: 1rem; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,.86); background: rgba(255,255,255,.72); }
+    .comparison-row { display: grid; grid-template-columns: 1.05fr .9fr 1.55fr 1.35fr; border-bottom: 1px solid var(--line); }
+    .comparison-row:last-child { border-bottom: 0; }
+    .comparison-row > * { padding: .75rem .9rem; font-size: clamp(.68rem, .9vw, .82rem); line-height: 1.5; }
+    .comparison-row.head { color: var(--blue-deep); background: rgba(209,233,255,.58); font-weight: 800; }
+    .comparison-row:not(.head):nth-child(even) { background: rgba(255,255,255,.55); }
+    .comparison-row strong { color: var(--blue-deep); }
+    .comparison-row span:nth-child(3) { color: var(--muted); }
+    .comparison-foot { margin-top: .95rem; color: var(--blue-deep); font-family: var(--display); font-size: clamp(1.05rem, 1.8vw, 1.45rem); text-align: center; }
+
+    /* Technology and moat */
+    .layer-stack { display: grid; gap: .7rem; }
+    .layer-card { display: grid; grid-template-columns: minmax(150px, 19%) 1fr; gap: 1rem; align-items: center; min-height: 128px; padding: .8rem 1rem; }
+    .layer-media { height: 105px; display: grid; place-items: center; overflow: hidden; border-radius: .75rem; background: rgba(56,123,232,.08); }
+    .layer-media img, .layer-media video { width: 100%; height: 100%; min-height: 0; max-height: 100%; object-fit: contain; }
+    .layer-copy { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .8rem; align-items: center; }
+    .layer-copy h3 { color: var(--blue-deep); }
+    .layer-copy p { margin-top: .25rem; color: var(--muted); font-size: .76rem; line-height: 1.5; }
+    .layer-kpi { min-width: 130px; color: var(--blue-deep); font-size: .72rem; text-align: right; }
+    .layer-kpi strong { display: block; color: var(--violet); font-size: 1.25rem; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .45rem; }
+    .chip-row .tag { padding: .3rem .5rem; border-radius: .45rem; font-size: .64rem; }
+    .moat-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, .9fr); gap: 1.1rem; align-items: stretch; }
+    .moat-list { display: grid; gap: .5rem; }
+    .moat-item { display: grid; grid-template-columns: 2.15rem 1fr; gap: .75rem; align-items: center; padding: .65rem .85rem; }
+    .moat-icon { width: 1.95rem; height: 1.95rem; display: grid; place-items: center; border-radius: 50%; color: #fff; background: linear-gradient(135deg, var(--blue), var(--violet)); font-size: .72rem; font-weight: 800; }
+    .moat-item h3 { font-size: .92rem; }
+    .moat-item p { margin-top: .12rem; color: var(--muted); font-size: .71rem; line-height: 1.45; }
+    .cto-card { display: flex; flex-direction: column; justify-content: center; padding: clamp(1.25rem, 2.4vw, 2rem); color: #f7fbff; background: linear-gradient(135deg, rgba(18,42,82,.96), rgba(82,74,166,.96)); box-shadow: 0 22px 55px rgba(33,50,125,.22); }
+    .cto-card h3 { margin-top: .25rem; font-size: 1.5rem; }
+    .cto-card .role { color: #9ff4ea; font-size: clamp(.94rem, 1.3vw, 1.08rem); font-weight: 800; }
+    .cto-card p { margin-top: .85rem; color: rgba(247,251,255,.82); font-size: clamp(.88rem, 1.12vw, 1rem); line-height: 1.62; }
+    .result-tags { display: flex; flex-wrap: wrap; gap: .48rem; margin-top: 1rem; }
+    .result-tags span { padding: .42rem .58rem; border: 1px solid rgba(255,255,255,.2); border-radius: .5rem; color: #fff09a; font-size: clamp(.7rem, .85vw, .82rem); }
+
+    /* Workflow and pricing */
+    .workflow-track { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: .35rem; }
+    .workflow-step { position: relative; min-height: 88px; padding: .8rem .55rem .6rem; border: 1px solid rgba(56,123,232,.13); border-radius: .75rem; background: rgba(255,255,255,.72); text-align: center; }
+    .workflow-step::after { content: '→'; position: absolute; right: -.47rem; top: 50%; z-index: 2; transform: translateY(-50%); color: var(--cyan); font-weight: 900; }
+    .workflow-step:last-child::after { display: none; }
+    .step-no { display: inline-grid; place-items: center; width: 1.3rem; height: 1.3rem; border-radius: 50%; color: #fff; background: linear-gradient(135deg, var(--blue), var(--violet)); font-size: .63rem; font-weight: 800; }
+    .workflow-step b { display: block; margin-top: .35rem; color: var(--blue-deep); font-size: .7rem; line-height: 1.35; }
+    .workflow-step span { display: block; margin-top: .2rem; color: var(--muted); font-size: .61rem; line-height: 1.35; }
+    .workflow-insight { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin-top: .85rem; }
+    .workflow-insight article { min-height: 78px; padding: .75rem .9rem; border-left: 3px solid var(--cyan); background: rgba(255,255,255,.56); }
+    .workflow-insight b { color: var(--blue-deep); font-size: .82rem; }
+    .workflow-insight p { margin-top: .22rem; color: var(--muted); font-size: .68rem; line-height: 1.45; }
+    .workflow-quote { margin-top: .8rem; color: var(--blue-deep); font-family: var(--display); font-size: clamp(1rem, 1.55vw, 1.35rem); text-align: center; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .85rem; }
+    .price-card { position: relative; padding: 1.05rem 1.15rem; transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
+    .price-card:hover { transform: translateY(-5px); box-shadow: 0 24px 55px rgba(46,91,161,.2); }
+    .price-card.recommended { background: linear-gradient(145deg, rgba(56,123,232,.9), rgba(138,108,244,.92)); color: #fff; }
+    .price-card.recommended::before { content: '推荐'; position: absolute; top: .8rem; right: .8rem; padding: .3rem .5rem; border-radius: 999px; color: var(--blue-deep); background: #fff; font-size: .64rem; font-weight: 800; }
+    .price-card h3 { color: var(--blue-deep); }
+    .price-card.recommended h3, .price-card.recommended p, .price-card.recommended li { color: #fff; }
+    .price-card p { margin-top: .35rem; color: var(--muted); font-size: .7rem; }
+    .price { margin-top: .65rem; color: var(--blue-deep); font-family: var(--display); font-size: clamp(1.65rem, 3vw, 2.6rem); line-height: 1; }
+    .price small { font-family: var(--body); font-size: .7rem; }
+    .price-card.recommended .price { color: #fff09a; }
+    .price-card ul { display: grid; gap: .35rem; margin: .65rem 0 0; padding: 0; list-style: none; }
+    .price-card li { color: var(--muted); font-size: .68rem; line-height: 1.4; }
+    .price-card li::before { content: '✓'; margin-right: .3rem; color: var(--cyan); font-weight: 800; }
+    .roi-strip { display: grid; grid-template-columns: 1fr auto 1fr; gap: .7rem; align-items: center; margin-top: 1rem; }
+    .roi-box { min-height: 92px; padding: .85rem 1rem; border-radius: .8rem; background: rgba(145,157,178,.14); }
+    .roi-box.highlight { background: linear-gradient(135deg, rgba(56,123,232,.13), rgba(138,108,244,.15)); border: 1px solid rgba(56,123,232,.15); }
+    .roi-box b { display: block; color: var(--blue-deep); font-size: .9rem; }
+    .roi-box p { margin-top: .25rem; color: var(--muted); font-size: .68rem; line-height: 1.45; }
+    .roi-center { color: var(--coral); font-family: var(--display); font-size: clamp(1.4rem, 2.7vw, 2.35rem); text-align: center; white-space: nowrap; }
+
+    /* Cases and evidence */
+    .case-layout { width: 100%; max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(225px, 250px); gap: 1.05rem; align-items: stretch; justify-content: center; }
+    .main-case { min-height: 100%; padding: 1rem 1.05rem; display: flex; flex-direction: column; justify-content: center; }
+    .case-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+    .main-case h3 { margin-top: .4rem; color: var(--blue-deep); font-size: 1.08rem; }
+    .case-quote { margin-top: .32rem; padding-left: .6rem; border-left: 3px solid var(--cyan); font-family: var(--display); font-size: clamp(.78rem, 1.05vw, .94rem); line-height: 1.35; }
+    .case-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: .45rem; margin-top: .5rem; }
+    .case-metric { padding: .4rem .5rem; border-radius: .55rem; background: rgba(56,123,232,.07); }
+    .case-metric strong { display: block; color: var(--blue-deep); font-size: 1rem; }
+    .case-metric span { display: block; color: var(--muted); font-size: .56rem; }
+    .feedback-carousel { position: relative; width: 100%; height: min(57vh, 435px); min-height: 0; justify-self: center; overflow: hidden; border: 1px solid rgba(56,123,232,.13); border-radius: 1.15rem; background: rgba(255,255,255,.7); box-shadow: 0 12px 28px rgba(34,72,134,.13); }
+    .feedback-track { height: 100%; display: flex; transition: transform .7s var(--ease); }
+    .feedback-card { flex: 0 0 100%; height: 100%; min-width: 0; margin: 0; padding: .52rem .52rem .46rem; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: .28rem; align-items: center; }
+    .feedback-card img { width: 100%; height: min(50vh, 400px); max-height: min(50vh, 400px); object-fit: contain; object-position: center; border-radius: .72rem; background: #eef6ff; }
+    .feedback-card figcaption { display: flex; align-items: baseline; justify-content: center; gap: .45rem; min-width: 0; padding: .04rem 2.1rem .04rem .2rem; text-align: center; }
+    .feedback-card b { flex: 0 0 auto; color: var(--blue-deep); font-size: .78rem; }
+    .feedback-card span { min-width: 0; color: var(--muted); font-size: .66rem; line-height: 1.4; }
+    .feedback-dots { position: absolute; right: .8rem; bottom: .7rem; display: flex; gap: .3rem; }
+    .feedback-dots button { width: .4rem; height: .4rem; padding: 0; border: 0; border-radius: 50%; background: rgba(56,123,232,.22); cursor: pointer; }
+    .feedback-dots button.active { width: 1rem; border-radius: .4rem; background: linear-gradient(90deg, var(--blue), var(--violet)); }
+    .business-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 1rem; align-items: stretch; }
+    .big-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; }
+    .big-stat { min-height: 105px; padding: .9rem 1rem; }
+    .big-stat strong { font-size: clamp(1.7rem, 3.4vw, 3.2rem); background: linear-gradient(110deg, var(--blue), var(--violet) 56%, var(--pink)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .growth-funnel { padding: 1rem; display: grid; align-content: center; gap: .7rem; }
+    .growth-funnel h3 { color: var(--blue-deep); font-size: .9rem; }
+    .funnel-step { display: grid; grid-template-columns: 2rem 1fr auto; gap: .55rem; align-items: center; padding: .65rem .75rem; border-radius: .65rem; background: rgba(56,123,232,.07); }
+    .funnel-step i { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; color: #fff; background: linear-gradient(135deg,var(--blue),var(--violet)); font-size: .65rem; font-style: normal; font-weight: 800; }
+    .funnel-step span { color: var(--muted); font-size: .7rem; }
+    .funnel-step strong { color: var(--blue-deep); font-family: var(--display); font-size: 1.05rem; }
+    .evidence-pills { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .8rem; }
+    .evidence-pills .tag strong { margin-right: .2rem; color: var(--blue-deep); }
+    .acquisition-note { margin-top: .65rem; color: var(--muted); font-size: .72rem; }
+    .acquisition-note strong { color: var(--blue-deep); }
+    .pricing-proof { display: flex; align-items: center; gap: .65rem; margin-top: .65rem; padding: .45rem .65rem; border: 1px solid rgba(56,123,232,.12); border-radius: .7rem; background: rgba(255,255,255,.48); }
+    .pricing-proof img { width: 74px; height: 40px; object-fit: cover; border-radius: .35rem; }
+    .pricing-proof strong { display: block; color: var(--blue-deep); font-size: .72rem; }
+    .pricing-proof span { display: block; margin-top: .12rem; color: var(--muted); font-size: .64rem; }
+    .pricing-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(310px, .9fr); gap: 1rem; align-items: stretch; }
+    .pricing-left { display: grid; gap: .75rem; }
+    .package-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; }
+    .package-grid .price-card { padding: .85rem .9rem; }
+    .package-grid .price-card h3 { margin-top: .42rem; font-size: 1.1rem; }
+    .package-grid .price-card p { min-height: 2.4em; font-size: .66rem; line-height: 1.35; }
+    .package-grid .price { margin-top: .48rem; font-size: clamp(1.75rem, 3.1vw, 2.45rem); }
+    .package-grid .price-card ul { gap: .26rem; margin-top: .48rem; }
+    .package-grid .price-card li { font-size: .62rem; line-height: 1.32; }
+    .product-function-card { min-height: 0; padding: .75rem; display: grid; grid-template-rows: auto 1fr auto; gap: .45rem; overflow: hidden; }
+    .product-function-card header { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+    .product-function-card header b { color: var(--blue-deep); font-size: .78rem; }
+    .function-image-viewport { --scan-height: 360px; height: var(--scan-height); overflow: hidden; border: 1px solid rgba(56,123,232,.12); border-radius: .55rem; background: #edf7ff; }
+    .function-image-viewport img { width: 100%; height: auto; display: block; animation: function-scan 18s var(--ease) infinite; }
+    .function-image-viewport:hover img { animation-play-state: paused; }
+    @keyframes function-scan { 0%, 16% { transform: translateY(0); } 26%, 40% { transform: translateY(-24%); } 50%, 64% { transform: translateY(-48%); } 74%, 88% { transform: translateY(calc(-100% + var(--scan-height))); } 100% { transform: translateY(0); } }
+    .product-function-card p { color: var(--muted); font-size: .63rem; line-height: 1.35; text-align: center; }
+    .pricing-roi { margin-top: 0; }
+    .pricing-roi .roi-box { min-height: 74px; padding: .62rem .75rem; }
+    .pricing-roi .roi-center { font-size: clamp(1.15rem, 2.1vw, 1.75rem); }
+    .update-strip { display: flex; flex-wrap: wrap; gap: .42rem; margin-top: .65rem; }
+    .update-strip span { padding: .36rem .55rem; border: 1px solid rgba(56,123,232,.12); border-radius: 999px; color: var(--blue-deep); background: rgba(255,255,255,.56); font-size: .64rem; font-weight: 700; }
+
+    /* Demo, team and closing */
+    .demo-stage { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(290px, .7fr); gap: 1rem; align-items: stretch; }
+    .demo-video { min-height: 360px; overflow: hidden; border-radius: 1rem; background: #101f44; box-shadow: 0 26px 65px rgba(17,31,83,.25); }
+    .demo-video video { width: 100%; height: 100%; min-height: 360px; object-fit: contain; background: #101f44; }
+    .demo-caption { padding: .5rem .75rem; color: rgba(255,255,255,.72); background: rgba(18,35,61,.8); font-size: .7rem; }
+    .timeline-card { padding: clamp(.78rem, 1.45vw, 1.1rem) clamp(.85rem, 1.6vw, 1.2rem); display: flex; flex-direction: column; }
+    .timeline-card h3 { color: var(--blue-deep); }
+    .timeline { display: grid; gap: .62rem; margin-top: .8rem; }
+    .timeline-item { display: grid; grid-template-columns: 1.6rem 1fr; gap: .55rem; align-items: start; }
+    .timeline-item b { display: grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; color: #fff; background: linear-gradient(135deg,var(--blue),var(--violet)); font-size: .65rem; }
+    .timeline-item p { color: var(--muted); font-size: .72rem; line-height: 1.45; }
+    .launch-head { display: flex; align-items: flex-start; justify-content: space-between; gap: clamp(.45rem, 1vw, .75rem); }
+    .launch-head h3 { font-size: clamp(1rem, 1.7vw, 1.35rem); line-height: 1.18; }
+    .launch-head span { flex: 0 0 auto; padding: clamp(.22rem, .45vw, .32rem) clamp(.4rem, .75vw, .58rem); border-radius: 999px; color: var(--blue-deep); background: rgba(56,123,232,.1); font-size: clamp(.55rem, .78vw, .66rem); font-weight: 800; }
+    .launch-steps { display: grid; grid-template-rows: repeat(3,minmax(0,1fr)); flex: 1; gap: clamp(.42rem, .8vw, .62rem); margin-top: clamp(.55rem, 1vw, .82rem); }
+    .launch-step { display: grid; grid-template-columns: clamp(1.85rem, 2.8vw, 2.3rem) minmax(0, 1fr); gap: clamp(.42rem, .75vw, .62rem); align-items: center; padding: clamp(.48rem, .85vw, .68rem); border: 1px solid rgba(56,123,232,.14); border-radius: clamp(.62rem, 1vw, .82rem); background: linear-gradient(120deg,rgba(234,248,255,.92),rgba(246,239,255,.82)); }
+    .launch-step > b { display: grid; place-items: center; width: clamp(1.85rem, 2.8vw, 2.3rem); height: clamp(1.85rem, 2.8vw, 2.3rem); border-radius: clamp(.52rem, .8vw, .68rem); color: #fff; background: linear-gradient(135deg,var(--blue),var(--violet)); font-size: clamp(.58rem, .9vw, .72rem); }
+    .launch-step strong { display: block; color: var(--ink); font-size: clamp(.7rem, 1.1vw, .86rem); line-height: 1.25; }
+    .launch-step p { margin-top: clamp(.12rem, .25vw, .2rem); color: var(--muted); font-size: clamp(.56rem, .82vw, .67rem); line-height: 1.32; }
+    .launch-divider { display: flex; align-items: center; gap: clamp(.35rem, .65vw, .5rem); margin: clamp(.55rem, 1vw, .78rem) 0 clamp(.38rem, .65vw, .52rem); color: var(--blue-deep); font-size: clamp(.56rem, .82vw, .67rem); font-weight: 800; }
+    .launch-divider::before, .launch-divider::after { content: ''; height: 1px; flex: 1; background: rgba(56,123,232,.18); }
+    .launch-outcomes { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: clamp(.28rem, .55vw, .42rem); }
+    .launch-outcomes span { padding: clamp(.35rem, .65vw, .5rem) clamp(.28rem, .5vw, .4rem); border-radius: clamp(.48rem, .8vw, .65rem); color: var(--blue-deep); background: rgba(255,255,255,.72); box-shadow: inset 0 0 0 1px rgba(56,123,232,.1); font-size: clamp(.52rem, .72vw, .62rem); font-weight: 800; line-height: 1.25; text-align: center; }
+    .team-layout { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: 1rem; align-items: stretch; }
+    .founders { display: grid; gap: .7rem; }
+    .founder-card { padding: 1rem 1.1rem; }
+    .founder-top { display: grid; grid-template-columns: 3rem 1fr; gap: .65rem; align-items: center; }
+    .avatar-dot { width: 2.7rem; height: 2.7rem; display: grid; place-items: center; border-radius: .8rem; color: #fff; background: linear-gradient(135deg,var(--blue),var(--violet)); font-weight: 900; }
+    .founder-card h3 { color: var(--blue-deep); }
+    .founder-card p { margin-top: .55rem; color: var(--muted); font-size: .72rem; line-height: 1.5; }
+    .founder-card .tag { margin-top: .55rem; border-radius: .45rem; padding: .32rem .5rem; font-size: .62rem; }
+    .roadmap-card { padding: 1.15rem 1.3rem; }
+    .roadmap { position: relative; display: grid; gap: .55rem; margin-top: .75rem; }
+    .roadmap::before { content: ''; position: absolute; left: .65rem; top: .7rem; bottom: .7rem; width: 2px; background: linear-gradient(var(--green), var(--blue), var(--violet)); }
+    .roadmap-item { position: relative; display: grid; grid-template-columns: 1.4rem 4.8rem 1fr auto; gap: .55rem; align-items: center; min-height: 45px; }
+    .roadmap-item i { position: relative; z-index: 1; width: 1.3rem; height: 1.3rem; display: grid; place-items: center; border-radius: 50%; color: #fff; background: var(--blue); font-size: .65rem; font-style: normal; }
+    .roadmap-item.done i { background: var(--green); }
+    .roadmap-item.live i { animation: pulse 1.7s infinite; }
+    .roadmap-item b { color: var(--blue-deep); font-size: .72rem; }
+    .roadmap-item span { color: var(--muted); font-size: .7rem; line-height: 1.4; }
+    .roadmap-item em { color: var(--cyan); font-size: .64rem; font-style: normal; font-weight: 800; }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(56,123,232,.35); } 50% { box-shadow: 0 0 0 8px rgba(56,123,232,0); } }
+    .roadmap-note { margin-top: .75rem; padding: .65rem .75rem; border-left: 3px solid var(--cyan); color: var(--muted); background: rgba(56,123,232,.06); font-size: .68rem; line-height: 1.45; }
+    .closing { text-align: center; }
+    .closing .slide-content { display: grid; justify-items: center; }
+    .closing h1 { max-width: 1000px; }
+    .closing .lede { max-width: 700px; margin-top: 1rem; color: rgba(247,251,255,.78); }
+    .closing .close-logo { width: 4.5rem; height: 4.5rem; margin: 1.3rem auto 0; border-radius: 1.3rem; }
+    .contact-row { display: flex; flex-wrap: wrap; justify-content: center; gap: .9rem; margin-top: 1.2rem; }
+    .contact-item { display: grid; grid-template-columns: 4.2rem 1fr; align-items: center; gap: .6rem; padding: .6rem .8rem; min-width: 170px; text-align: left; border: 1px solid rgba(255,255,255,.18); border-radius: .7rem; background: rgba(255,255,255,.1); }
+    .contact-item img { width: 4.2rem; height: 4.2rem; object-fit: cover; border-radius: .45rem; background: #fff; }
+    .contact-item b { color: #9ff4ea; font-size: .7rem; }
+    .contact-item span { display: block; margin-top: .25rem; color: rgba(247,251,255,.78); font-size: .68rem; line-height: 1.4; word-break: break-all; }
+    .closing-tags { margin-top: 1rem; }
+
+    /* Controls */
+    .nav { position: fixed; right: clamp(.55rem, 1.7vw, 1.4rem); top: 50%; z-index: 20; display: grid; gap: .38rem; transform: translateY(-50%); }
+    .nav button { width: .5rem; height: .5rem; padding: 0; border: 0; border-radius: 50%; background: rgba(70,104,165,.25); cursor: pointer; transition: all .25s var(--ease); }
+    .nav button.active { height: 1.35rem; border-radius: 999px; background: linear-gradient(var(--blue),var(--violet)); }
+    .progress { position: fixed; left: 0; top: 0; z-index: 40; width: 100%; height: 3px; background: rgba(56,123,232,.08); }
+    .progress i { display: block; height: 100%; width: 7.7%; background: linear-gradient(90deg,var(--cyan),var(--blue),var(--violet)); transition: width .35s var(--ease); }
+    .speaker-notes { display: none; }
+    .speaker-mode .speaker-notes { display: block; position: fixed; right: 1rem; bottom: 1rem; z-index: 60; width: min(430px, calc(100vw - 2rem)); max-height: 33vh; overflow: auto; padding: 1rem; border: 1px solid rgba(56,123,232,.18); border-radius: .85rem; color: var(--ink); background: rgba(255,255,255,.95); box-shadow: 0 18px 50px rgba(29,69,133,.2); font-size: .78rem; line-height: 1.7; }
+    .speaker-mode .speaker-notes::before { content: '演讲者备注'; display: block; margin-bottom: .35rem; color: var(--blue-deep); font-weight: 800; }
+
+    @media (max-width: 980px) {
+      .cover-layout, .market-grid { grid-template-columns: 1fr; }
+      .cover-side { display: none; }
+      .section-head { display: block; }
+      .section-head > p { margin-top: .7rem; }
+      .title-line { white-space: normal; }
+      .layer-card { grid-template-columns: 145px 1fr; }
+      .workflow-scroll { overflow-x: auto; padding-bottom: .25rem; }
+      .workflow-track { width: max(100%, 930px); }
+      .pricing-grid { grid-template-columns: repeat(3, minmax(210px, 1fr)); overflow-x: auto; padding-bottom: .3rem; }
+      .price-card { min-width: 210px; }
+      .feedback-carousel { height: min(57vh, 435px); }
+      .growth-funnel { min-height: 220px; }
+    }
+    @media (min-width: 681px) and (max-width: 980px) {
+      .moat-layout { grid-template-columns: minmax(0, 1fr) minmax(250px, .82fr); gap: .75rem; }
+      .cto-card { padding: 1rem 1.15rem; }
+      .cto-card h3 { font-size: 1.2rem; }
+      .cto-card .role { font-size: clamp(.88rem, 1.6vw, .98rem); }
+      .cto-card p { margin-top: .62rem; font-size: clamp(.82rem, 1.5vw, .92rem); line-height: 1.5; }
+      .result-tags { gap: .34rem; margin-top: .7rem; }
+      .result-tags span { padding: .32rem .44rem; font-size: clamp(.64rem, 1.15vw, .74rem); }
+      .moat-item { gap: .55rem; padding: .5rem .65rem; }
+      .moat-item p { font-size: .64rem; }
+      .business-grid { grid-template-columns: minmax(0, 1fr) minmax(250px, .92fr); gap: .75rem; }
+      .growth-funnel { min-height: 0; padding: .75rem; gap: .45rem; }
+      .funnel-step { padding: .46rem .55rem; }
+      .pricing-layout { grid-template-columns: minmax(0, 1.04fr) minmax(250px, .96fr); gap: .7rem; }
+      .product-function-card { padding: .6rem; }
+      .function-image-viewport { --scan-height: 315px; }
+      .demo-stage { grid-template-columns: minmax(0, 1.18fr) minmax(230px, .82fr); gap: .75rem; }
+      .demo-video, .demo-video video { min-height: 270px; }
+      .timeline-card { padding: .75rem .85rem; }
+      .timeline { gap: .4rem; margin-top: .55rem; }
+      .timeline-item p { font-size: .66rem; line-height: 1.35; }
+      .launch-step { padding: clamp(.42rem, .7vw, .55rem); }
+      .launch-divider { margin-top: clamp(.42rem, .7vw, .58rem); }
+      .team-layout { grid-template-columns: minmax(0, .95fr) minmax(260px, 1.05fr); gap: .75rem; }
+      .founder-card { padding: .75rem .85rem; }
+      .founder-card p { margin-top: .35rem; font-size: .66rem; line-height: 1.4; }
+      .roadmap-card { padding: .8rem .95rem; }
+      .roadmap { gap: .35rem; margin-top: .5rem; }
+      .roadmap-item { min-height: 36px; gap: .4rem; }
+      .roadmap-note { margin-top: .5rem; font-size: .64rem; line-height: 1.4; }
+    }
+    @media (max-width: 680px) {
+      .slide { height: auto; min-height: 100dvh; overflow: visible; justify-content: flex-start; padding: 4.1rem 1.1rem 1.1rem; }
+      .topline { top: .7rem; }
+      .footer { position: relative; left: auto; right: auto; bottom: auto; width: 100%; margin-top: 1.2rem; }
+      .topline span:last-child, .footer span:first-child { max-width: 58%; }
+      h1 { font-size: clamp(2.25rem, 10vw, 3.9rem); }
+      h2, .section-head h2 { font-size: clamp(1.7rem, 8vw, 2.7rem); }
+      .cover-stats { grid-template-columns: repeat(2, 1fr); }
+      .story-grid, .pain-list, .comparison-row, .pricing-grid, .pricing-layout, .roi-strip, .case-layout, .business-grid { grid-template-columns: 1fr; }
+      .pain-list { gap: .55rem; }
+      .market-row { grid-template-columns: 7rem 1fr; }
+      .market-row label strong { font-size: 1.15rem; }
+      .comparison-row { display: block; padding: .65rem .8rem; }
+      .comparison-row.head { display: none; }
+      .comparison-row > * { display: block; padding: .22rem 0; }
+      .comparison-row > *::before { display: inline-block; width: 4.8rem; color: var(--blue-deep); font-size: .62rem; font-weight: 800; }
+      .comparison-row > *:nth-child(1)::before { content: '类型'; }
+      .comparison-row > *:nth-child(2)::before { content: '代表'; }
+      .comparison-row > *:nth-child(3)::before { content: '局限'; }
+      .comparison-row > *:nth-child(4)::before { content: '差异'; }
+      .layer-card { grid-template-columns: 1fr; gap: .55rem; padding: .8rem; }
+      .layer-media { height: 110px; }
+      .layer-copy { display: block; }
+      .layer-kpi { margin-top: .5rem; text-align: left; }
+      .slide-content, .workflow-scroll { min-width: 0; width: 100%; }
+      .workflow-scroll { overflow-x: auto; }
+      .workflow-track { width: 930px; }
+      .pricing-grid { display: grid; grid-template-columns: 1fr; overflow: visible; }
+      .price-card { min-width: 0; }
+      .roi-strip { gap: .55rem; }
+      .roi-center { order: -1; }
+      .case-metrics, .big-stats { grid-template-columns: repeat(2, 1fr); }
+      .feedback-carousel { width: min(100%, 280px); height: 460px; min-height: 0; }
+      .feedback-card { gap: .35rem; }
+      .feedback-card img { height: min(50vh, 400px); }
+      .feedback-card figcaption { display: block; padding: .1rem 1.8rem .1rem .3rem; }
+      .feedback-card span { margin-top: .18rem; }
+      .demo-video, .demo-video video { min-height: 230px; }
+      .roadmap-item { grid-template-columns: 1.4rem 4.2rem 1fr; }
+      .roadmap-item em { grid-column: 3; }
+      .contact-row { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+      .contact-item { min-width: 0; grid-template-columns: 3.1rem 1fr; }
+      .contact-item img { width: 3.1rem; height: 3.1rem; }
+      .pricing-proof { align-items: flex-start; }
+      .update-strip { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (max-height: 760px) and (min-width: 681px) {
+      .slide { --pad: clamp(.8rem, 3vw, 2.3rem); }
+      .eyebrow { margin-bottom: .55rem; }
+      .section-head { margin-bottom: .85rem; }
+      .story-card { min-height: 275px; }
+      .layer-card { min-height: 105px; }
+      .layer-media { height: 82px; }
+      .workflow-step { min-height: 75px; padding-top: .55rem; }
+      .feedback-carousel { height: min(57vh, 420px); min-height: 0; }
+      .feedback-card img { height: min(50vh, 380px); }
+      .demo-video, .demo-video video { min-height: 290px; }
+      .launch-steps { gap: clamp(.32rem, .6vw, .46rem); margin-top: clamp(.42rem, .7vw, .58rem); }
+      .launch-step p { line-height: 1.24; }
+      .launch-divider { margin-top: clamp(.38rem, .65vw, .5rem); margin-bottom: clamp(.3rem, .5vw, .4rem); }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <div class="progress" aria-hidden="true"><i></i></div>
+  <nav class="nav" aria-label="章节导航"></nav>
+  <main class="deck" id="deck">
+    <section class="slide cover" data-title="封面" data-time="20">
+      <div class="topline"><span class="brand"><img src="./assets/mira-avatar-CzC0FCdU.jpeg" alt="米拉AI 标志"> 米拉AI</span><span>电商私域运营智能体</span></div>
+      <div class="slide-content cover-layout">
+        <div class="cover-copy reveal"><h1><span class="title-line">米拉AI</span><span class="title-line"><span class="gradient-text">企业 AI</span></span><span class="title-line">私域运营助手</span></h1><p class="lede"><strong>让每个中小企业，拥有一个7×24小时AI数字员工团队</strong>把重复客服、资料发送和客户跟进，交给一套能接待、能做事、能分析的 AI 经营系统。</p><div class="cover-stats"><div class="stat"><strong class="count" data-value="50" data-suffix="+">0</strong><span>付费客户</span></div><div class="stat"><strong class="count" data-value="100" data-suffix="+">0</strong><span>购买次数</span></div><div class="stat"><strong class="count" data-value="40000" data-suffix="+">0</strong><span>累计营收 / 元</span></div><div class="stat"><strong class="count" data-value="90" data-suffix="%+">0</strong><span>毛利率</span></div></div><div class="cover-tags"><span class="pill">初心OPC黑客松</span><span class="pill">赛道 A · 电商经营智能体</span><span class="pill">2026.07.19</span></div></div>
+        <div class="cover-side reveal" aria-label="米拉AI 官网式产品功能轮播"><div class="site-preview"><div class="site-preview-track"><article class="site-preview-panel"><div class="site-preview-copy"><small>米拉AI · 24 小时在线</small><b>金牌 AI 私域运营助手</b><p>让客户咨询、资料发送和日常跟进持续在线。</p></div><img src="./assets/screenshot-v2-01-HXDf2Iab.png" alt="米拉AI 产品界面"></article><article class="site-preview-panel"><div class="site-preview-copy"><small>核心能力 01</small><b>AI 智能回复</b><p>知识库、话术、多轮对话和人工接管协同工作。</p></div><img src="./assets/screenshot-v2-02-BU2fJ5E6.png" alt="米拉AI 智能回复界面"></article><article class="site-preview-panel"><div class="site-preview-copy"><small>核心能力 02</small><b>自动化执行</b><p>通过好友、打标签、发资料和群运营，按规则完成。</p></div><img src="./assets/screenshot-v2-03-W26jJc74.jpg" alt="米拉AI 自动化功能"></article><article class="site-preview-panel"><div class="site-preview-copy"><small>核心能力 03</small><b>客户分层经营</b><p>把联系人和群聊信息沉淀为下一步经营动作。</p></div><img src="./assets/screenshot-v2-04-BQ-yrzea.jpg" alt="米拉AI 客户经营界面"></article></div></div><span class="cover-video-label">产品能力自动轮播 · 悬停可暂停</span></div>
+      </div>
+      <div class="footer"><span>从自动回复，到持续经营</span><span>01 / 13</span></div>
+      <aside class="speaker-notes">大家好，我是蔡琪。今天分享的不是一个普通的自动回复工具，而是米拉AI：给中小企业准备的 AI 私域运营助手。它让一个小团队也能拥有 7×24 小时接待、发资料、做分析和推进下一步的数字员工。</aside>
+    </section>
+
+    <section class="slide" data-title="痛点" data-time="24">
+      <div class="topline"><span>01 / 核心痛点</span><span>客户来了，却常常没有被接住</span></div>
+      <div class="slide-content"><div class="section-head reveal"><div><p class="eyebrow">客户到来的那一刻</p><h2><span class="title-line">客户来了，</span><span class="title-line">却经常停在人工那一关。</span></h2></div><p>商家缺的不是聊天工具，而是一套能接住客户、留住信息、推动下一步的经营系统。</p></div><div class="story-grid"><article class="story-card glass reveal"><div><span class="pill">房产中介 · 一个真实场景</span><p class="quote">“10个销售，每人每天200+条消息。早上8点到晚上10点全在回消息。”</p><p class="story-source">晚上10点以后、周末、节假日，客户咨询来了却没人接。</p><div class="metric-strip"><span><strong>200+</strong>条 / 人 / 天</span><span><strong>14h</strong>人工在线</span><span><strong>60%+</strong>漏接流失</span></div></div></article><div class="pain-list"><article class="pain-card glass reveal"><div class="pain-icon">💰</div><h3>人力贵</h3><p>1个客服 5000-8000 元 / 月，10人团队年成本 60万+。</p></article><article class="pain-card glass reveal"><div class="pain-icon">📉</div><h3>接不住</h3><p>30分钟内未回复，客户可能已经转向下一家。</p></article><article class="pain-card glass reveal"><div class="pain-icon">🔀</div><h3>碎片化</h3><p>微信、企微、WhatsApp、小红书、抖音各自为战。</p></article><article class="pain-card glass reveal"><div class="pain-icon">🐢</div><h3>培训慢</h3><p>新人上手 2-3 个月，离职还会带走客户和知识。</p></article></div></div></div>
+      <div class="footer"><span>每一次漏回，都是一次被动流失</span><span>02 / 13</span></div>
+      <aside class="speaker-notes">演讲里我会讲房产中介的故事。这一页把它展开：消息很多、人力昂贵、平台分散、培训慢。问题不是“有没有消息”，而是客户来了之后，团队有没有能力持续接住。</aside>
+    </section>
+
+    <section class="slide" data-title="市场规模" data-time="18">
+      <div class="topline"><span>02 / 市场空间</span><span>大需求，尚未被轻量方案满足</span></div>
+      <div class="slide-content"><div class="section-head reveal"><div><p class="eyebrow">市场已经存在，服务仍有缺口</p><h2><span class="title-line">千亿级市场，</span><span class="title-line"><strong class="accent">正在等待更轻的答案。</strong></span></h2></div><p>从月活用户，到中小企业，再到 AI 客服服务缺口，需求已经存在，只是还没有被低成本接住。</p></div><div class="market-grid"><div class="market-bars glass reveal"><div class="market-row"><label><strong>13亿+</strong>微信月活</label><div class="bar-track"><div class="bar-fill" style="--bar:100%"></div></div></div><div class="market-row"><label><strong>500万+</strong>中小企业私域</label><div class="bar-track"><div class="bar-fill" style="--bar:68%"></div></div></div><div class="market-row"><label><strong>千亿级</strong>AI客服缺口</label><div class="bar-track"><div class="bar-fill" style="--bar:36%"></div></div></div><p class="market-note">数据来源：微信公开课、艾瑞咨询、企业调研；市场规模为资料口径。</p></div><div class="market-side glass reveal"><h3>传统方案与 米拉AI</h3><div class="compare-pair"><div class="compare-box"><b>企微 SCRM</b><p>年费 5000-30000<br>需要迁移和培训</p></div><span class="compare-arrow">→</span><div class="compare-box highlight"><b>米拉AI</b><p>229 元 / 月起<br>保留原工作方式</p></div></div><div class="big-highlight">降成本 &gt;95%</div></div></div></div>
+      <div class="footer"><span>低迁移成本，才有机会服务更大的小商家市场</span><span>03 / 13</span></div>
+      <aside class="speaker-notes">演讲中我只会快速提到 500 万家企业，这一页补充完整市场逻辑。微信是巨大的客户入口，中小商家已经在用个人微信做私域，但传统系统成本高、迁移重。米拉AI 从零迁移和低月费切进去。</aside>
+    </section>
+
+    <section class="slide dark" id="product-demo" data-title="产品 Demo" data-time="60">
+      <div class="topline"><span>03 / 产品演示</span><span>先看产品如何真正工作</span></div>
+      <div class="slide-content"><div class="section-head reveal"><div><p class="eyebrow">产品自己会说话</p><h2><span class="title-line">这不是概念，</span><span class="title-line"><strong class="accent">而是已经在工作的产品。</strong></span></h2></div><p>59 秒实操：从知识库回复、行业模板到客户分层与运营分析，一条链路看懂产品如何工作。</p></div><div class="demo-stage"><div class="demo-video reveal"><video id="demoVideo" src="./assets/mira-product-demo-_0rWf_jn.mp4" preload="metadata" playsinline controls></video><div class="demo-caption" id="demoCaption">59 秒真实产品操作演示 · 点击播放并打开声音</div></div><div class="timeline-card glass reveal"><div class="launch-head"><h3>3 步启动，马上开始接待</h3><span>约 30 分钟</span></div><div class="launch-steps"><article class="launch-step"><b>01</b><div><strong>安装并绑定微信</strong><p>登录 Windows 客户端，连接需要托管的微信账号。</p></div></article><article class="launch-step"><b>02</b><div><strong>搭建专属知识库</strong><p>导入产品资料、FAQ、销售话术、图片和文件。</p></div></article><article class="launch-step"><b>03</b><div><strong>开启自动接待与运营</strong><p>设置回复规则和人工接管，启动后即可持续在线。</p></div></article></div><div class="launch-divider">启动后，Mira 自动完成</div><div class="launch-outcomes"><span>知识库精准回复</span><span>销售资料自动发送</span><span>意向分析 · 转人工</span></div></div></div></div>
+      <div class="footer"><span>从及时回复到经营分析，AI 把服务链路真正串起来</span><span>04 / 13</span></div>
+      <aside class="speaker-notes">讲完市场空间后，先用 59 秒真实产品画面建立理解。视频展示米拉AI 如何根据知识库和销售话术回复客户，调用多行业模板，再把聊天信息转成客户分类、标签和跟进策略。使用只有三步：第一，安装 Windows 客户端并绑定需要托管的微信；第二，导入产品资料、FAQ、销售话术、图片和文件，搭建企业专属知识库；第三，设置回复与人工接管规则，开启自动接待。</aside>
+    </section>
+
+    <section class="slide" data-title="竞品对比" data-time="18">
+      <div class="topline"><span>04 / 竞争差异</span><span>不迁移、能执行、懂业务</span></div>
+      <div class="slide-content"><div class="section-head reveal"><div><p class="eyebrow">为什么是 米拉AI</p><h2><span class="title-line">不是再做一个客服后台，</span><span class="title-line">而是把 AI 放回<strong class="accent">真实工作界面</strong>。</span></h2></div><p>不同方案都解决了一部分问题，但小商家需要的是：不迁移、能执行、懂业务、可扩展。</p></div><div class="comparison reveal"><div class="comparison-row head"><b>竞品类型</b><b>代表产品</b><b>核心局限</b><b>米拉AI 差异化</b></div><div class="comparison-row"><b>企微 SCRM</b><span>有客、识流、yoko</span><span>需迁移到企微，小B不愿；年费 5000+</span><strong>零迁移成本，月费 229 起</strong></div><div class="comparison-row"><b>外贸 AI 智能体</b><span>光年触达</span><span>聚焦外贸单一场景</span><strong>多行业模板 + 跨平台扩展</strong></div><div class="comparison-row"><b>传统 RPA / Hook</b><span>各类脚本</span><span>封号风险高，缺少业务理解</span><strong>纯视觉识别 + AI + RPA 一体</strong></div><div class="comparison-row"><b>通用 AI 客服</b><span>API 接入类</span><span>平台改规则就失效</span><strong>不依赖平台 API，天然跨平台</strong></div></div><p class="comparison-foot reveal">“看得见界面，才能把 AI 的能力真正落到业务动作上。”</p></div>
+      <div class="footer"><span>差异化不是功能更多，而是迁移更轻、执行更真</span><span>05 / 13</span></div>
+      <aside class="speaker-notes">这一页用于补充竞品判断。企微 SCRM 更重，脚本工具更脆，通用客服更依赖 API。米拉AI 的路线是纯视觉识别，把 AI 放在真实工作界面里完成动作。</aside>
+    </section>
+
+    <section class="slide" data-title="技术方案" data-time="26">
+      <div class="topline"><span>05 / 技术架构</span><span>技术方案总览 · 三层能力</span></div>
+      <div class="slide-content"><div class="section-head reveal"><div><p class="eyebrow">一个智能体，三层能力</p><h2><span class="title-line">看见界面，</span><span class="title-line">再把 AI 的能力<strong class="accent">接出去。</strong></span></h2></div><p>底层看得见，中层做得到，上层可扩展：从视觉识别到 RPA，再到外接 AI 生态。</p></div><div class="layer-stack"><article class="layer-card glass reveal"><div class="layer-media"><img src="./assets/tech-vision-cover-BgHAwt5C.png" alt="米拉AI 从自动回复到全流程私域经营"></div><div class="layer-copy"><div><span class="tag">01 · 核心能力</span><h3>纯视觉识别引擎</h3><p>基于多模态模型理解屏幕，不接平台 API，识别聊天、联系人、按钮和业务状态。</p></div><div class="layer-kpi"><strong>95%+</strong>核心场景识别准确率<br><strong>4元/月</strong>单客 API 成本</div></div></article><article class="layer-card glass reveal"><div class="layer-media"><img src="./assets/tech-automation-Bh9awyWo.png" alt="米拉AI 三步启动与自动接待流程"></div><div class="layer-copy"><div><span class="tag">02 · 自动化</span><h3>自动化执行层</h3><p>模拟人工操作，自动通过好友、打标签、发资料、拉群和定时群发。</p><div class="chip-row"><span class="tag">自动通过好友</span><span class="tag">批量导入名单</span><span class="tag">群聊暗号控制</span><span class="tag">关键节点接管</span></div></div><div class="layer-kpi"><strong>7×24</strong>持续执行<br><strong>可控</strong>随时暂停</div></div></article><article class="layer-card glass reveal"><div class="layer-media"><img src="./assets/tech-external-ai-B4f2gW4u.png" alt="Mira 与 WorkBuddy 手机电脑联动"></div><div class="layer-copy"><div><span class="tag">03 · 外接 AI</span><h3>外接 AI · 能力指数级增长</h3><p>通过 WorkBuddy、扣子等外接 AI 工具，扩展知识库、工作流编排和跨系统联动。</p><div class="chip-row"><span class="tag">知识库增强</span><span class="tag">多模态理解</span><span class="tag">工作流编排</span><span class="tag">跨系统联动</span></div></div><div class="layer-kpi"><strong>∞</strong>能力边界开放<br><strong>能力模块</strong>按需接入</div></div></article></div></div>
+      <div class="footer"><span>第三层从 WorkBuddy 经营分析，升级为开放的外接 AI 能力</span><span>06 / 13</span></div>
+      <aside class="speaker-notes">米拉AI 的技术方案分三层。第一层是纯视觉识别，像人一样看屏幕。第二层是 RPA，把识别结果变成真实动作。第三层是外接 AI，WorkBuddy、扣子和其他工具都可以接进来，让能力边界不被一套固定功能锁住。</aside>
+    </section>
+
+    <section class="slide" data-title="技术壁垒" data-time="22">
+      <div class="topline"><span>06 / 技术壁垒</span><span>纯视觉识别技术壁垒</span></div>
+      <div class="slide-content"><div class="section-head reveal"><div><p class="eyebrow">底层能力决定上限</p><h2><span class="title-line">不依赖 API 的技术底气，</span><span class="title-line">来自<strong class="accent">看得懂、做得稳。</strong></span></h2></div><p>把平台变化隔离在视觉层，把更多成本留给产品和客户价值。</p></div><div class="moat-layout"><div class="moat-list"><article class="moat-item glass reveal"><span class="moat-icon">01</span><div><h3>跨平台通用性</h3><p>一套引擎适配微信、WhatsApp、小红书、抖音。</p></div></article><article class="moat-item glass reveal"><span class="moat-icon">02</span><div><h3>物理级防封</h3><p>零 Hook、零注入，遵循平台规则和合理频率。</p></div></article><article class="moat-item glass reveal"><span class="moat-icon">03</span><div><h3>极低成本</h3><p>单客月 API 成本 4 元，毛利率超过 90%。</p></div></article><article class="moat-item glass reveal"><span class="moat-icon">04</span><div><h3>快速适配</h3><p>新平台重点重训视觉模型，底层不必重构。</p></div></article><article class="moat-item glass reveal"><span class="moat-icon">05</span><div><h3>行业知识库</h3><p>多行业运营模板，让部署从 2 小时降到 0.5 小时。</p></div></article></div><article class="cto-card glass reveal"><span class="role">技术负责人 · 技术与视觉算法</span><p>华中科技大学 AI 硕士，推免 GPA 91.9。CVPR 2025 Highlight 一作，百度视觉技术部 MLLM 算法研发。</p><p>长期深耕多模态大模型、视觉算法和 RPA 工程，把研究成果压缩成中小企业用得起的产品。</p><div class="result-tags"><span>CVPR 2025 Highlight</span><span>AAAI 2024</span><span>ICME 2025 Oral</span><span>ActivityNet 冠军</span><span>MLLM</span><span>QwenVL</span></div></article></div></div>
+      <div class="footer"><span>技术壁垒最终要变成客户看得见的稳定性</span><span>07 / 13</span></div>
+      <aside class="speaker-notes">技术壁垒这一页放到网页里展开。张化鑫是华科 AI 硕士，做过 CVPR Highlight 一作和百度视觉 MLLM 算法研发。我们希望把研究能力变成很朴素的产品体验：少依赖平台接口，低成本，能持续适配。</aside>
+    </section>
+
+    <section class="slide" data-title="全链路闭环" data-time="22">
+      <div class="topline"><span>07 / 经营闭环</span><span>从客户进来到持续经营</span></div>
+      <div class="slide-content"><div class="section-head reveal"><div><p class="eyebrow">一条完整经营链路</p><h2><span class="title-line">从加好友到持续经营，</span><span class="title-line">每一步都<strong class="accent">有记录。</strong></span></h2></div><p>把“什么都自己做”变成“只管关键决策”，让 AI 承担重复劳动。</p></div><div class="workflow-scroll"><div class="workflow-track"><div class="workflow-step reveal"><i class="step-no">1</i><b>自动通过好友</b><span>识别并打标签</span></div><div class="workflow-step reveal"><i class="step-no">2</i><b>AI 打招呼</b><span>发送欢迎语</span></div><div class="workflow-step reveal"><i class="step-no">3</i><b>智能接待</b><span>多轮回答</span></div><div class="workflow-step reveal"><i class="step-no">4</i><b>同步记录</b><span>沉淀聊天资产</span></div><div class="workflow-step reveal"><i class="step-no">5</i><b>分析打标</b><span>判断意向度</span></div><div class="workflow-step reveal"><i class="step-no">6</i><b>分层跟进</b><span>生成下一步</span></div><div class="workflow-step reveal"><i class="step-no">7</i><b>转人工</b><span>关键节点接管</span></div><div class="workflow-step reveal"><i class="step-no">8</i><b>运营报告</b><span>复盘再增长</span></div></div></div><div class="workflow-insight reveal"><article class="glass"><b>接待层：AI 规模化处理</b><p>自动回复、资料发送、标签同步和常规问题闭环。</p></article><article class="glass"><b>经营层：外接 AI 辅助决策</b><p>提取群聊信息、分析联系人、生成分层和下一步运营动作。</p></article></div><p class="workflow-quote reveal">“从被消息追着跑，变成按策略主动出击。”</p></div>
+      <div class="footer"><span>AI 承担重复劳动，人把时间留给真正的成交</span><span>08 / 13</span></div>
+      <aside class="speaker-notes">这条闭环是 米拉AI 和普通客服工具的区别。客户从哪里来、问过什么、现在处于什么阶段、下一步该做什么，都被记录下来。AI 负责规模化处理，WorkBuddy 和外接 AI 负责理解、排序和扩展，真人只处理关键决策。</aside>
+    </section>
+
+    <section class="slide" data-title="商业模式" data-time="20">
+      <div class="topline"><span>08 / 商业模式</span><span>简单透明的定价，不套路</span></div>
+      <div class="slide-content"><div class="section-head reveal"><div><p class="eyebrow">为经营结果付费，而非迁移成本</p><h2><span class="title-line">低门槛开始，</span><span class="title-line">把客户经营<strong class="accent">交给数字员工。</strong></span></h2></div><p>基础版快速上线；标准年套餐覆盖持续经营、客户分析与长期维护。</p></div><div class="pricing-layout"><div class="pricing-left"><div class="package-grid"><article class="price-card glass reveal"><span class="tag">月度灵活</span><h3>基础版</h3><p>适合快速上线私域接待与资料发送</p><div class="price">229<small> 元 / 月</small></div><ul><li>AI 智能回复与人工检查</li><li>知识库：话术、FAQ、文件、链接</li><li>RPA：加好友、打标签、群发</li><li>联系人同步与黑名单管理</li></ul></article><article class="price-card recommended glass reveal"><span class="tag">年度稳定</span><h3>标准年套餐</h3><p>适合长期运营与持续客户维护</p><div class="price">2980<small> 元 / 年</small></div><ul><li>1 个 AI、1 个微信，全年使用</li><li>单聊 / 群聊多轮智能回复</li><li>图片、视频、语音、链接自动发送</li><li>客户分层、分析、激活与复购跟进</li></ul></article></div><div class="roi-strip pricing-roi reveal"><div class="roi-box"><b>传统方案</b><p>客服 5000-8000 / 月<br>培训 2-3 个月 · 离职风险</p></div><div class="roi-center">节省 &gt;95%</div><div class="roi-box highlight"><b>米拉AI</b><p>229 / 月起<br>0.5h 部署 · 7×24 在线</p></div></div></div><aside class="product-function-card glass reveal"><header><span class="tag">完整功能清单</span><b>四类能力完整浏览</b></header><div class="function-image-viewport"><img src="./assets/mira-pricing-detail-sruE7ome.png" alt="米拉AI 套餐功能明细，自动完整浏览"></div><p>自动纵向浏览：RPA 自动化 · AI 智能回复 · 知识库发送 · 客户管理与分析</p></aside></div></div>
+      <div class="footer"><span>先把完整价值交付，再让客户决定是否继续</span><span>09 / 13</span></div>
+      <aside class="speaker-notes">定价分两档：基础版 229 元每月，适合先跑通智能接待和基础自动化；标准年套餐 2980 元，覆盖全年持续运营、客户分层和复购维护。右侧是完整功能清单，现场不需要逐项念，只要强调：客户按经营需求选择，功能可随业务一起升级。</aside>
+    </section>
+
+    <section class="slide" data-title="客户案例" data-time="26">
+      <div class="topline"><span>09 / 客户案例</span><span>真实客户 · 真实效果</span></div>
+      <div class="slide-content"><div class="section-head reveal"><div><p class="eyebrow">真实客户，真实变化</p><h2><span class="title-line">客户买的不是功能，</span><span class="title-line">而是<strong class="accent">被接住之后的结果。</strong></span></h2></div><p>不同行业的客户反馈，最终都指向同一个结果：更快接待、更少重复劳动、更持续的复购。</p></div><div class="case-layout"><article class="main-case glass reveal"><div class="case-meta"><span class="tag">案例 01</span><span class="tag">白酒行业</span><span class="tag">周总</span></div><h3>4000+ 个微信客户，4个客服，月人力成本1万+</h3><p class="case-quote">“以前我花80%的时间在回消息上，20%的时间在谈客户上。现在反过来了。”</p><div class="case-metrics"><div class="case-metric"><strong>10000→1000</strong><span>人力成本 / 月，↓90%</span></div><div class="case-metric"><strong>30min→15s</strong><span>平均响应速度</span></div><div class="case-metric"><strong>+40%</strong><span>转化率提升</span></div></div></article><div class="feedback-carousel reveal" aria-label="15 张客户反馈自动轮播"><div class="feedback-track"><figure class="feedback-card"><img src="./assets/customer-feedback-01-BVauwECF.png" alt="客户反馈截图 1"><figcaption><b>真实反馈</b><span>01 / 15</span></figcaption></figure><figure class="feedback-card"><img src="./assets/customer-feedback-02-CykUROKu.png" alt="客户反馈截图 2"><figcaption><b>真实反馈</b><span>02 / 15</span></figcaption></figure><figure class="feedback-card"><img src="./assets/customer-feedback-03-CqDbPPi9.png" alt="客户反馈截图 3"><figcaption><b>真实反馈</b><span>03 / 15</span></figcaption></figure><figure class="feedback-card"><img src="./assets/customer-feedback-04-BGYwB09Y.png" alt="客户反馈截图 4"><figcaption><b>真实反馈</b><span>04 / 15</span></figcaption></figure><figure class="feedback-card"><img src="./assets/customer-feedback-05-7J6OBcuh.png" alt="客户反馈截图 5"><figcaption><b>真实反馈</b><span>05 / 15</span></figcaption></figure><figure class="feedback-card"><img src="./assets/customer-feedback-06-B7f7FvcP.png" alt="客户反馈截图 6"><figcaption><b>真实反馈</b><span>06 / 15</span></figcaption></figure><figure class="feedback-card"><img src="./assets/customer-feedback-07-C4-tAKsR.png" alt="客户反馈截图 7"><figcaption><b>真实反馈</b><span>07 / 15</span></figcaption></figure><figure class="feedback-card"><img src="./assets/customer-feedback-08-BJ-gRBWJ.png" alt="客户反馈截图 8"><figcaption><b>真实反馈</b><span>08 / 15</span></figcaption></figure><figure class="feedback-card"><img src="./assets/customer-feedback-09-Ctr8pIhH.jpg" alt="客户反馈截图 9"><figcaption><b>真实反馈</b><span>09 / 15</span></figcaption></figure><figure class="feedback-card"><img src="./assets/customer-feedback-10-DH7JHITU.png" alt="客户反馈截图 10"><figcaption><b>真实反馈</b><span>10 / 15</span></figcaption></figure><figure class="feedback-card"><img src="./assets/customer-feedback-11-Bc68o6fl.jpg" alt="客户反馈截图 11"><figcaption><b>真实反馈</b><span>11 / 15</span></figcaption></figure><figure class="feedback-card"><img src="./assets/customer-feedback-12-V2nfhVRY.jpg" alt="客户反馈截图 12"><figcaption><b>真实反馈</b><span>12 / 15</span></figcaption></figure><figure class="feedback-card"><img src="./assets/customer-feedback-13-DePzrz1w.jpg" alt="客户反馈截图 13"><figcaption><b>真实反馈</b><span>13 / 15</span></figcaption></figure><figure class="feedback-card"><img src="./assets/customer-feedback-14-Buv0y508.png" alt="客户反馈截图 14"><figcaption><b>真实反馈</b><span>14 / 15</span></figcaption></figure><figure class="feedback-card"><img src="./assets/customer-feedback-15-DGzDAFNm.jpg" alt="客户反馈截图 15"><figcaption><b>真实反馈</b><span>15 / 15</span></figcaption></figure></div><div class="feedback-dots" aria-label="客户反馈切换"></div></div></div></div>
+      <div class="footer"><span>让每一次对话，都能回到客户结果</span><span>10 / 13</span></div>
+      <aside class="speaker-notes">客户案例里，白酒行业是最完整的一组：4000 多个客户、4 个客服、每月一万多的人力成本，最后保留一个资深销售，把大部分日常咨询交给 AI。右侧收录了 15 张真实客户反馈，覆盖产品认可、持续转介绍、功能建议、成交与服务体验。</aside>
+    </section>
+
+    <section class="slide" data-title="商业数据" data-time="22">
+      <div class="topline"><span>10 / 商业数据</span><span>商业数据验证</span></div>
+      <div class="slide-content"><div class="section-head reveal"><div><p class="eyebrow">真实客户，真实商业验证</p><h2><span class="title-line">从内容获客，</span><span class="title-line">到<strong class="accent">可持续的商业闭环。</strong></span></h2></div><p>不堆零散截图，而是把从内容到成交的关键节点放在同一条增长链路里。</p></div><div class="business-grid"><div><div class="big-stats"><div class="big-stat glass reveal"><strong class="count" data-value="50" data-suffix="+">0</strong><span>累计付费客户</span></div><div class="big-stat glass reveal"><strong class="count" data-value="100" data-suffix="+">0</strong><span>累计购买次数</span></div><div class="big-stat glass reveal"><strong class="count" data-value="40000" data-suffix="+">0</strong><span>累计营收 / 元</span></div><div class="big-stat glass reveal"><strong class="count" data-value="11.1" data-decimals="1" data-suffix="%">0</strong><span>全链路转化率</span></div></div><div class="evidence-pills"><span class="tag"><strong>4元</strong>单客 API / 月</span><span class="tag"><strong>&gt;90%</strong>毛利率</span><span class="tag"><strong>零投流</strong>内容获客</span></div></div><aside class="growth-funnel glass reveal"><h3>内容获客增长链路</h3><div class="funnel-step"><i>1</i><span>全平台内容曝光</span><strong>50,000+</strong></div><div class="funnel-step"><i>2</i><span>沉淀私域线索</span><strong>1,000+</strong></div><div class="funnel-step"><i>3</i><span>完成付费转化</span><strong>50+</strong></div><div class="funnel-step"><i>4</i><span>持续复购与转介绍</span><strong>100+</strong></div></aside></div><div class="update-strip reveal"><span>多轮对话</span><span>知识库增强</span><span>自动化执行</span><span>联系人分层</span><span>群聊信息提取</span><span>人工接管</span><span>持续更新</span></div><p class="acquisition-note"><strong>获客方式：</strong>小红书内容 / 场景视频 / 短视频 / 私域裂变 / 分销体系。<strong>零投流费用，全靠内容营销。</strong></p></div>
+      <div class="footer"><span>低获客成本 · 内容带来持续复利</span><span>11 / 13</span></div>
+      <aside class="speaker-notes">商业数据展示 50 多个付费客户、100 多次购买、4 万多营收，以及 11.1% 的全链路转化率。获客主要靠内容营销，不依赖投流。现场讲这一页时，顺着右侧增长链路说明：内容曝光带来私域线索，线索转为付费客户，再通过复购和转介绍形成持续增长。</aside>
+    </section>
+
+    <section class="slide" data-title="团队路线" data-time="25">
+      <div class="topline"><span>11 / 团队与路线</span><span>小团队，快反馈，持续迭代</span></div>
+      <div class="slide-content"><div class="section-head reveal"><div><p class="eyebrow">小团队，快速反馈</p><h2><span class="title-line">产品、增长、视觉算法，</span><span class="title-line">一起跑在<strong class="accent">真实反馈</strong>上。</span></h2></div><p>团队不先做一个大而全的平台，而是在真实客户里验证、复盘、迭代。</p></div><div class="team-layout"><div class="founders"><article class="founder-card glass reveal"><div class="founder-top"><span class="avatar-dot">cc</span><div><h3>蔡琪 · 产品与增长负责人</h3><span class="tag">内容获客 · 客户运营</span></div></div><p>华科外语硕士，保研 GPA 3.85，牛津交换；字节跳动抖音电商用户体验与商家运营；AI 职场博主。</p></article><article class="founder-card glass reveal"><div class="founder-top"><span class="avatar-dot">AI</span><div><h3>张化鑫 · 技术与视觉算法负责人</h3><span class="tag">多模态 · 视觉算法 · RPA</span></div></div><p>华科 AI 硕士，CVPR 2025 Highlight 一作；百度视觉技术部 MLLM 算法研发，负责视觉模型、RPA 工程与稳定性。</p></article></div><article class="roadmap-card glass reveal"><p class="eyebrow">产品路线</p><div class="roadmap"><div class="roadmap-item done"><i>✓</i><b>阶段 1</b><span>个人微信端 · 完成 50+ 客户验证</span><em>已完成</em></div><div class="roadmap-item live"><i>↗</i><b>阶段 2</b><span>企业微信 + WhatsApp · 跨平台覆盖</span><em>推进中</em></div><div class="roadmap-item"><i>3</i><b>阶段 3</b><span>小红书 + 抖音 · 全平台私域运营</span><em>下一步</em></div><div class="roadmap-item"><i>4</i><b>阶段 4</b><span>统一多平台运营中台</span><em>远景</em></div></div><p class="roadmap-note">上线流程已经标准化：完成资料梳理与话术设定后，即可在半小时内进入可验证的真实接待场景。</p></article></div></div>
+      <div class="footer"><span>让研究能力成为小商家用得起的产品</span><span>12 / 13</span></div>
+      <aside class="speaker-notes">团队是两个人，但分工很清楚：我负责产品、增长和客户，张化鑫负责视觉算法和 RPA。我们已经完成个人微信端的客户验证，下一步扩展到企业微信、WhatsApp，再连接更多内容平台。</aside>
+    </section>
+
+    <section class="slide dark closing" data-title="愿景收尾" data-time="22">
+      <div class="topline"><span>12 / 愿景收尾</span><span>米拉AI · 企业 AI 私域运营助手</span></div>
+      <div class="slide-content reveal"><p class="eyebrow">一个随时在线的数字员工团队</p><h1><span class="title-line">让每个中小企业，</span><span class="title-line">都拥有一个 7×24 小时</span><span class="title-line"><span class="gradient-text">AI 数字员工团队</span>。</span></h1><p class="lede">米拉AI — AI时代的私域降本增效方案<br>从接待到复购，让每一次客户对话都变成可持续增长的资产。</p><img class="close-logo" src="./assets/mira-avatar-CzC0FCdU.jpeg" alt="米拉AI logo"><div class="contact-row"><div class="contact-item"><img src="./assets/wechat-qrcode-DWqJolQF.jpg" alt="微信二维码"><div><b>微信</b><span>米拉AI2026</span></div></div><div class="contact-item"><img src="./assets/mira-agent-qrcode-CMbjazY1.jpg" alt="米拉 AI 智能体二维码"><div><b>产品体验</b><span>mirachat.cn</span></div></div></div><div class="cover-tags closing-tags"><span class="pill">初心OPC黑客松</span><span class="pill">赛道 A · 电商经营智能体</span><span class="pill">2026.07.19</span></div></div>
+      <div class="footer"><span>谢谢大家</span><span>13 / 13</span></div>
+      <aside class="speaker-notes">最后，我想让每个中小企业都拥有一个 7×24 小时 AI 数字员工团队：不是替代人，而是把重复劳动接过去，把关键决策留给人。谢谢大家，欢迎会后体验 米拉AI。</aside>
+    </section>
+  </main>
+
+  <script>
+    const deck = document.getElementById('deck');
+    const slides = [...document.querySelectorAll('.slide')];
+    const nav = document.querySelector('.nav');
+    const progress = document.querySelector('.progress i');
+    let current = 0;
+
+    slides.forEach((slide, index) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.title = `${index + 1}. ${slide.dataset.title}`;
+      dot.addEventListener('click', () => goTo(index));
+      nav.appendChild(dot);
+    });
+
+    function goTo(index) {
+      current = Math.max(0, Math.min(slides.length - 1, index));
+      slides[current].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      updateUI();
+    }
+
+    function animateCounters(slide) {
+      slide.querySelectorAll('.count').forEach(counter => {
+        if (counter.dataset.animated === 'true') return;
+        counter.dataset.animated = 'true';
+        const target = Number(counter.dataset.value || 0);
+        const decimals = Number(counter.dataset.decimals || 0);
+        const suffix = counter.dataset.suffix || '';
+        const start = performance.now();
+        const duration = 900;
+        const tick = now => {
+          const progressValue = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progressValue, 3);
+          counter.textContent = `${(target * eased).toFixed(decimals)}${suffix}`;
+          if (progressValue < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+    }
+
+    function updateUI() {
+      slides.forEach((slide, index) => slide.classList.toggle('active', index === current));
+      [...nav.children].forEach((dot, index) => dot.classList.toggle('active', index === current));
+      progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+      animateCounters(slides[current]);
+    }
+
+    const feedbackCarousel = document.querySelector('.feedback-carousel');
+    const feedbackTrack = document.querySelector('.feedback-track');
+    const feedbackDots = document.querySelector('.feedback-dots');
+    const feedbackSlides = feedbackTrack ? [...feedbackTrack.children] : [];
+    let feedbackIndex = 0;
+    let feedbackTimer;
+
+    function setFeedbackSlide(index) {
+      if (!feedbackTrack || !feedbackSlides.length) return;
+      feedbackIndex = (index + feedbackSlides.length) % feedbackSlides.length;
+      feedbackTrack.style.transform = `translateX(-${feedbackIndex * 100}%)`;
+      feedbackDots?.querySelectorAll('button').forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === feedbackIndex));
+    }
+
+    if (feedbackCarousel && feedbackDots && feedbackSlides.length) {
+      feedbackSlides.forEach((slide, index) => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.title = `客户反馈 ${index + 1}`;
+        dot.addEventListener('click', () => setFeedbackSlide(index));
+        feedbackDots.appendChild(dot);
+      });
+      const startFeedbackTimer = () => {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        clearInterval(feedbackTimer);
+        feedbackTimer = setInterval(() => setFeedbackSlide(feedbackIndex + 1), 4200);
+      };
+      feedbackCarousel.addEventListener('mouseenter', () => clearInterval(feedbackTimer));
+      feedbackCarousel.addEventListener('mouseleave', startFeedbackTimer);
+      setFeedbackSlide(0);
+      startFeedbackTimer();
+    }
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          current = slides.indexOf(entry.target);
+          updateUI();
+        }
+      });
+    }, { root: deck, threshold: .62 });
+    slides.forEach(slide => observer.observe(slide));
+
+    document.addEventListener('keydown', event => {
+      if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); goTo(current + 1); }
+      if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(event.key)) { event.preventDefault(); goTo(current - 1); }
+      if (event.key === 'Home') goTo(0);
+      if (event.key === 'End') goTo(slides.length - 1);
+      if (event.key.toLowerCase() === 'f') document.documentElement.requestFullscreen?.();
+      if (event.key.toLowerCase() === 's' || event.key.toLowerCase() === 'n') document.body.classList.toggle('speaker-mode');
+    });
+
+    let touchY = 0;
+    deck.addEventListener('touchstart', event => { touchY = event.changedTouches[0].clientY; }, { passive: true });
+    deck.addEventListener('touchend', event => {
+      const delta = event.changedTouches[0].clientY - touchY;
+      if (Math.abs(delta) > 44) goTo(delta < 0 ? current + 1 : current - 1);
+    }, { passive: true });
+
+    const demoVideo = document.getElementById('demoVideo');
+    updateUI();
+  </script>
+</body>
+</html>
